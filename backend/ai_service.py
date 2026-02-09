@@ -58,7 +58,9 @@ def generate_questions(domain: str, level: str) -> List[Dict]:
         result.append({
             "id": i + 1,
             "text": q["text"],
-            "skill_category": q["skill"]
+            "skill_category": q["skill"],
+            "question_type": "text",
+            "difficulty": "Intermediate"
         })
     return result
 

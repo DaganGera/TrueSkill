@@ -1,17 +1,37 @@
-from pydantic import BaseModel
-from typing import List, Optional, Dict
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional, Dict, Union
 
-# Auth
-class LoginRequest(BaseModel):
-    username: str
+# Auth Models
+class UserBase(BaseModel):
+    email: EmailStr
+    role: str = "student" # student, hr
+    full_name: Optional[str] = None
+
+class UserCreate(UserBase):
     password: str
-    role: str  # "student" or "hr"
+
+class UserInDB(UserBase):
+    hashed_password: str
+
+class User(UserBase):
+    pass
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Union[str, None] = None
+    role: Union[str, None] = None
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 class LoginResponse(BaseModel):
-    success: bool
-    token: str
-    username: str
-    message: str
+    access_token: str
+    token_type: str
+    user: User
 
 # Resume
 class ResumeUpload(BaseModel):
@@ -30,6 +50,8 @@ class Question(BaseModel):
     id: int
     text: str
     skill_category: str  # logical_reasoning, problem_solving, etc.
+    question_type: str
+    difficulty: str
 
 class Assessment(BaseModel):
     id: str

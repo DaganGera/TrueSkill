@@ -3,3 +3,11 @@ uvicorn
 pydantic
 python-multipart
 starlette
+
+ollama
+crewai
+langchain-community
+passlib
+python-jose[cryptography]
+python-multipart
+argon2-cffi

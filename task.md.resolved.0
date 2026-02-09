@@ -1,0 +1,40 @@
+# Task List: Inclusive Skill Evaluation Platform (Hackathon MVP)
+
+- [ ] **Initialization**
+    - [ ] Create project directory structure (`backend`, `frontend`, `docs`) <!-- id: 0 -->
+    - [ ] Create `README.md` with High-Level Architecture and Data Flow <!-- id: 1 -->
+
+- [ ] **Backend (FastAPI)**
+    - [ ] `requirements.txt` <!-- id: 2 -->
+    - [ ] `main.py` (App entry, CORS, key routes) <!-- id: 3 -->
+    - [ ] `models.py` (Pydantic models for Student, HR, Assessment) <!-- id: 4 -->
+    - [ ] `ai_service.py` (Prompt engineering logic & mock response generation) <!-- id: 5 -->
+    - [ ] `routes/auth.py` (Simple mock auth) <!-- id: 6 -->
+    - [ ] `routes/assessment.py` (Question generation & submission) <!-- id: 7 -->
+    - [ ] `routes/hr.py` (Resume parsing mock & analytics) <!-- id: 8 -->
+
+- [ ] **AI Logic & Prompts**
+    - [ ] Define Question Generation Prompt <!-- id: 9 -->
+    - [ ] Define Answer Evaluation Prompt <!-- id: 10 -->
+    - [ ] Define Scoring/Aggregation Logic <!-- id: 11 -->
+    - [ ] Document Example Input/Output JSON in `docs/ai_examples.md` <!-- id: 12 -->
+
+- [ ] **Frontend (Next.js)**
+    - [ ] *Note: We will create key files to be placed in a standard Next.js app structure.*
+    - [ ] `package.json` (dependencies) <!-- id: 13 -->
+    - [ ] `app/layout.tsx` (Root layout) <!-- id: 14 -->
+    - [ ] `app/page.tsx` (Landing/Login) <!-- id: 15 -->
+    - [ ] `app/dashboard/page.tsx` (Student Dashboard) <!-- id: 16 -->
+    - [ ] `app/assessment/page.tsx` (Assessment Interface with Accessibility Controls) <!-- id: 17 -->
+    - [ ] `app/report/page.tsx` (Results with Radar Chart) <!-- id: 18 -->
+    - [ ] `app/hr/page.tsx` (HR Dashboard) <!-- id: 19 -->
+    - [ ] `components/IntegrityGuard.tsx` (Anti-cheat logic) <!-- id: 20 -->
+
+- [ ] **Documentation & Scripts**
+    - [ ] `docs/integrity_logic.md` (Explanation of JS logic) <!-- id: 21 -->
+    - [ ] `docs/demo_script.md` (Step-by-step click path) <!-- id: 22 -->
+    - [ ] `docs/judge_pitch.md` (60-90s pitch) <!-- id: 23 -->
+    - [ ] `docs/limitations_roadmap.md` (Future scope) <!-- id: 24 -->
+
+- [ ] **Final Review**
+    - [ ] Verify all requirements from prompt are met <!-- id: 25 -->

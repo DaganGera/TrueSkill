@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  /* Slate-900 */
+  --background-start-rgb: 248, 250, 252;
+  /* Slate-50 */
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: white;
+  /* Default background */
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  /* Clean Inter settings */
+}
+
+@layer utilities {
+  .high-contrast {
+    filter: contrast(1.25) brightness(1.1);
+  }
+
+  .bg-mesh-gradient {
+    background-color: #ffffff;
+    background-image:
+      radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+  }
+
+  .bg-vibrant-mesh {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(at 4% 0%, hsla(250, 70%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 95% 4%, hsla(320, 80%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsla(210, 70%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(280, 80%, 95%, 1) 0px, transparent 50%);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .gradient-text {
+    background: linear-gradient(to right, #4f46e5, #9333ea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Accessibility Focus Styles */
+*:focus-visible {
+  outline: 2px solid #6366f1;
+  /* Indigo-500 */
+  outline-offset: 2px;
+}
+
+/* Base Styles for large text preference */
+html.text-lg {
+  font-size: 112.5%;
+  /* 18px base */
+}

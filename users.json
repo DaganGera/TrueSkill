@@ -1,0 +1,28 @@
+{
+    "punda@gmail.com": {
+        "email": "punda@gmail.com",
+        "role": "student",
+        "full_name": "Uploaded Candidate",
+        "hashed_password": "$pbkdf2-sha256$29000$WasVovQ.B6B0DsF4b.0dgw$fML437hobhPHMBtxLyozP0cUsPq1Y6AJLwZGagLRZOw",
+        "domain": "Data Science",
+        "experience": 0,
+        "skills": [
+            "AWS"
+        ],
+        "accessibility_needs": []
+    },
+    "sadhana519k@gmail.com": {
+        "email": "sadhana519k@gmail.com",
+        "role": "student",
+        "full_name": "sadhana k",
+        "hashed_password": "$pbkdf2-sha256$29000$GYMwZmwtpTTmvHeulRLCeA$L0Hu97m67R2HF3ax/bo3l5cLPCthSgpmfr.Rnmr7x2c",
+        "domain": "Data Science",
+        "experience": 0,
+        "skills": [
+            "AWS"
+        ],
+        "accessibility_needs": [
+            "neurodivergent"
+        ]
+    }
+}

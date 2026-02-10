@@ -13,6 +13,12 @@
 
 ## 2. Quick Start
 
+### AI Models (Optional - for Real Generation)
+By default, the system uses mock data for stability. To use **Llama 3** or **OSS 20B**:
+1.  Install [Ollama](https://ollama.com/).
+2.  Pull the model: `ollama pull llama3` (or `ollama pull soap/oss-20b`).
+3.  Update `backend/ollama_config.py` to set `OLLAMA_MODEL = "llama3"` (or your chosen model).
+
 ### Prerequisites
 -   Node.js 18+
 -   Python 3.10+

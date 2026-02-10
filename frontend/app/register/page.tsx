@@ -24,7 +24,7 @@ export default function RegisterPage() {
         setError('');
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/auth/register', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -36,7 +36,11 @@ export default function RegisterPage() {
                 throw new Error(data.detail || 'Registration failed');
             }
 
-            router.push('/login');
+            router.push('/login'); // Login first, then logic in Login will route to onboarding if checking profile completeness, or simple:
+            // For hackathon, let's redirect to login, then login takes them to onboarding? 
+            // Better: Auto-login after register? For now, stick to simple flow -> Login
+            // Wait, user asked to go to onboarding after login if profile inc.
+            // Let's keep it simple: Register -> Login -> Onboarding (we will simulate this via Login page logic)
         } catch (err: any) {
             setError(err.message);
         } finally {

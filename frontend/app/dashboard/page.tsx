@@ -1,11 +1,20 @@
+'use client';
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
 import { Badge } from "@/components/ui/Badge";
-import { Play, FileText, CheckCircle, Clock, LayoutDashboard, Settings, User } from "lucide-react";
+import { Play, FileText, CheckCircle, Clock, LayoutDashboard, Settings, User as UserIcon } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Dashboard() {
+    const { user, logout } = useAuth();
+
+    // Default values if profile is incomplete
+    const displayName = user?.full_name || "Candidate";
+    const displayRole = user?.domain || "Software Engineer";
+    const recommendedDomain = user?.domain || "General";
+
     return (
         <div className="min-h-screen bg-vibrant-mesh flex">
             {/* Sidebar Navigation */}
@@ -28,20 +37,18 @@ export default function Dashboard() {
                             My Assessments
                         </Button>
                     </Link>
-                    <Link href="/report">
+                    <Link href="/onboarding">
                         <Button variant="ghost" className="w-full justify-start">
-                            <User className="w-4 h-4 mr-3" />
+                            <UserIcon className="w-4 h-4 mr-3" />
                             Profile
                         </Button>
                     </Link>
                 </nav>
 
-                <Link href="/">
-                    <Button variant="ghost" className="w-full justify-start mt-auto text-slate-500 hover:text-red-600 hover:bg-red-50">
-                        <Settings className="w-4 h-4 mr-3" />
-                        Log Out
-                    </Button>
-                </Link>
+                <Button variant="ghost" onClick={logout} className="w-full justify-start mt-auto text-slate-500 hover:text-red-600 hover:bg-red-50">
+                    <Settings className="w-4 h-4 mr-3" />
+                    Log Out
+                </Button>
             </aside>
 
             {/* Main Content */}
@@ -53,11 +60,11 @@ export default function Dashboard() {
                     <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Candidate Overview</h2>
                     <div className="flex items-center gap-4">
                         <div className="text-sm text-right hidden sm:block">
-                            <p className="font-medium text-slate-900">John Doe</p>
-                            <p className="text-slate-500 text-xs">Full Stack Developer</p>
+                            <p className="font-medium text-slate-900">{displayName}</p>
+                            <p className="text-slate-500 text-xs">{displayRole}</p>
                         </div>
                         <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
-                            J
+                            {displayName[0]}
                         </div>
                     </div>
                 </header>
@@ -66,7 +73,7 @@ export default function Dashboard() {
 
                     {/* Welcome */}
                     <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Good morning, John.</h1>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Good morning, {displayName.split(' ')[0]}.</h1>
                         <p className="text-slate-600 text-lg">
                             You have <span className="font-semibold text-indigo-600">1 pending assessment</span> to complete this week.
                         </p>
@@ -84,7 +91,7 @@ export default function Dashboard() {
                         </div>
                         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                             <p className="text-slate-500 text-sm font-medium mb-1">Top Skill</p>
-                            <p className="text-2xl font-bold text-indigo-600">React</p>
+                            <p className="text-2xl font-bold text-indigo-600">{user?.skills?.[0] || "React"}</p>
                         </div>
                         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                             <p className="text-slate-500 text-sm font-medium mb-1">Rank</p>
@@ -108,14 +115,14 @@ export default function Dashboard() {
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <Badge variant="default" className="mb-2">Recommended</Badge>
-                                            <h3 className="text-xl font-semibold text-slate-900">Senior Full Stack Developer</h3>
+                                            <h3 className="text-xl font-semibold text-slate-900">{recommendedDomain} Evaluation</h3>
                                         </div>
                                         <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded-md flex items-center gap-1">
                                             <Clock className="w-3 h-3" /> 60m
                                         </span>
                                     </div>
                                     <p className="text-slate-600 text-sm leading-relaxed">
-                                        Evaluate your system design, React patterns, and Node.js architecture skills. tailored to your experience level.
+                                        Evaluate your system design, {recommendedDomain} patterns, and architecture skills, tailored to your {user?.experience || 0} years of experience.
                                     </p>
                                     <div className="pt-2">
                                         <Link href="/assessment">
@@ -132,8 +139,8 @@ export default function Dashboard() {
                                         <CheckCircle className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-slate-900">Python Basics</h3>
-                                        <p className="text-slate-500 text-sm mt-1">Completed Feb 8</p>
+                                        <h3 className="text-lg font-semibold text-slate-900">General Logic</h3>
+                                        <p className="text-slate-500 text-sm mt-1">Completed recently</p>
                                     </div>
                                     <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                                         <div className="flex justify-between text-sm mb-1">

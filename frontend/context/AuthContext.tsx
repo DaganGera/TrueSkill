@@ -7,6 +7,10 @@ interface User {
     email: string;
     role: string;
     full_name?: string;
+    domain?: string;
+    experience?: number;
+    skills?: string[];
+    accessibility_needs?: string[];
 }
 
 interface AuthContextType {

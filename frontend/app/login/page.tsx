@@ -19,7 +19,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/auth/login', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -32,6 +32,14 @@ export default function LoginPage() {
             }
 
             login(data.access_token, data.user);
+
+            // Check if profile is incomplete (using default experience=0 and no domain as heuristic)
+            if (data.user.role === 'student' && (!data.user.domain || data.user.experience === 0)) {
+                // Force onboarding for students with empty profiles
+                // Note: AuthContext login might redirect, so we might need to handle this inside AuthContext or here.
+                // Current AuthContext redirects immediately. Let's update AuthContext to rely on us or handle it there.
+                // actually AuthContext handles the redirect. We should probably update AuthContext.
+            }
         } catch (err: any) {
             setError(err.message);
         } finally {

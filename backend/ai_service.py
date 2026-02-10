@@ -46,62 +46,73 @@ MOCK_QUESTIONS = {
     ]
 }
 
-def generate_questions(domain: str, level: str) -> List[Dict]:
-    """Simulates AI question generation."""
-    # In production: Call OpenAI/Gemini API with QUESTION_GEN_PROMPT_TEMPLATE
-    domain_key = domain if domain in MOCK_QUESTIONS else "General"
-    questions = MOCK_QUESTIONS[domain_key]
+from backend.ollama_client import query_ollama
+import json
+
+from backend.crew_orchestrator import crew_orchestrator
+import json
+
+def generate_questions(domain: str, level: str, experience: int = 0, user_skills: List[str] = []) -> List[Dict]:
+    """Generates questions using the Question Architect Agent."""
     
-    # Add IDs
-    result = []
-    for i, q in enumerate(questions):
-        result.append({
-            "id": i + 1,
-            "text": q["text"],
-            "skill_category": q["skill"],
-            "question_type": "text",
-            "difficulty": "Intermediate"
-        })
-    return result
+    # Construct a pseudo-profile for the agent
+    profile_analysis = {
+        "skills": user_skills,
+        "experience_years": experience,
+        "seniority_level": level
+    }
+    
+    # Call the Crew
+    questions = crew_orchestrator.design_assessment(profile_analysis, domain)
+    
+    # If Crew fails (returns empty), fallback to Mock
+    if not questions:
+        print("Crew generation failed, falling back to mock.")
+        domain_key = domain if domain in MOCK_QUESTIONS else "General"
+        qs = MOCK_QUESTIONS[domain_key]
+        questions = []
+        for i, q in enumerate(qs):
+            questions.append({
+                "id": i + 1,
+                "text": q["text"],
+                "skill_category": q["skill"],
+                "question_type": "text",
+                "difficulty": "Intermediate"
+            })
+    else:
+        # Ensure IDs are set
+        for i, q in enumerate(questions):
+            q["id"] = i + 1
+            if "question_type" not in q: q["question_type"] = "text"
+            # Ensure difficulty is string
+            if "difficulty" in q and not isinstance(q["difficulty"], str):
+                 q["difficulty"] = str(q["difficulty"])
+            # Ensure skill_category is string (Ollama sometimes returns list)
+            if "skill_category" in q and isinstance(q["skill_category"], list):
+                q["skill_category"] = ", ".join(q["skill_category"])
+            
+    return questions
 
 def evaluate_submission(answers: List[Dict]) -> Dict:
-    """Simulates AI answer evaluation."""
-    # In production: Call LLM for each answer with ANSWER_EVAL_PROMPT_TEMPLATE
+    """Evaluates answers using the Grader Agent."""
     
-    # Mock efficient scoring logic
-    skill_scores = {}
-    total_score = 0
+    # Determine domain context from answers (simplified)
+    # In prod, we'd pass the assessment ID and get the domain
+    domain = "General" 
     
-    # Randomized but plausible scores for demo
-    base_score = random.randint(70, 95)
+    evaluation = crew_orchestrator.grade_submission(answers, domain)
     
-    skills = ["logical_reasoning", "problem_solving", "critical_thinking", "analytical_reasoning", "communication"]
-    
-    result_scores = []
-    
-    for skill in skills:
-        score = min(100, max(60, base_score + random.randint(-10, 10)))
-        feedback_options = [
-            "Strong logical flow.",
-            "Good reasoning, but could be specific.",
-            "Excellent understanding of edge cases.",
-            "Clear and concise explanation.",
-            "Demonstrates deep conceptual knowledge."
-        ]
-        result_scores.append({
-            "skill": skill,
-            "percentage": score,
-            "feedback": random.choice(feedback_options)
-        })
-        total_score += score
-
-    overall = int(total_score / len(skills))
-    
-    return {
-        "overall_score": overall,
-        "skill_scores": result_scores,
-        "summary_feedback": f"Candidate demonstrates {level_description(overall)} proficiency in {skills[0]} and {skills[1]}. Recommended for next round."
-    }
+    # Fallback if evaluation fails
+    if evaluation.get("overall_score") == 0:
+        return {
+            "overall_score": 75,
+            "skill_scores": [
+                {"skill": "Problem Solving", "percentage": 75, "feedback": "Good effort, but AI grading failed. This is a placeholder score."}
+            ],
+            "summary_feedback": "AI Grader was unavailable. Please try again later."
+        }
+        
+    return evaluation
 
 def level_description(score):
     if score > 90: return "Expert"

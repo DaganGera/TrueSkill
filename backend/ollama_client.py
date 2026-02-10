@@ -1,13 +1,14 @@
 import ollama
 from typing import Optional
+from backend.ollama_config import OLLAMA_MODEL
 
-def query_ollama(prompt: str, model: str = "llama3.2", format: str = None) -> Optional[str]:
+def query_ollama(prompt: str, model: str = OLLAMA_MODEL, format: str = None) -> Optional[str]:
     """
     Sends a prompt to the local Ollama instance and returns the response.
 
     Args:
         prompt (str): The input text prompt to send to the model from the user.
-        model (str): The name of the model to use (default: "llama3.2").
+        model (str): The name of the model to use (default: configured OLLAMA_MODEL).
         format (str): The format of the response (e.g., "json").
 
     Returns:

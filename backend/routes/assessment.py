@@ -1,22 +1,57 @@
-from fastapi import APIRouter
-from ..models import AssessmentRequest, Assessment, SubmissionRequest, AssessmentResult
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from ..models import AssessmentRequest, Assessment as PydanticAssessment, SubmissionRequest
+from ..models_db import Assessment as DBAssessment, Submission as DBSubmission, User as DBUser
+from ..dependencies import get_current_user, get_db
 from ..ai_service import generate_questions, evaluate_submission
 import uuid
+import datetime
 
 router = APIRouter()
 
-@router.post("/generate", response_model=Assessment)
-async def create_assessment(request: AssessmentRequest):
-    questions = generate_questions(request.domain, request.level)
+@router.post("/generate", response_model=PydanticAssessment)
+async def create_assessment(
+    request: AssessmentRequest, 
+    user: DBUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    questions = generate_questions(request.domain, request.level, request.experience, request.skills)
     assessment_id = str(uuid.uuid4())
-    # In a real app, save assessment_id -> questions mapping to DB to verify answers later
+    
+    # Save to DB
+    new_assessment = DBAssessment(
+        id=assessment_id,
+        user_id=user.id,
+        questions=questions,
+        created_at=datetime.datetime.now().isoformat()
+    )
+    db.add(new_assessment)
+    db.commit()
+    
     return {
         "id": assessment_id, 
         "questions": questions
     }
 
-@router.post("/submit", response_model=AssessmentResult)
-async def submit_assessment(request: SubmissionRequest):
-    # In a real app, retrieve question context using request.assessment_id
-    evaluation = evaluate_submission(request.answers)
+@router.post("/submit")
+async def submit_assessment(
+    request: SubmissionRequest, 
+    user: DBUser = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Convert Pydantic models to dicts for JSON serialization
+    answers_list = [a.dict() for a in request.answers]
+    
+    evaluation = evaluate_submission(answers_list)
+    
+    # Save submission to DB
+    submission = DBSubmission(
+        assessment_id=request.assessment_id,
+        user_id=user.id,
+        answers=answers_list,
+        result=evaluation
+    )
+    db.add(submission)
+    db.commit()
+    
     return evaluation

@@ -9,12 +9,20 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    domain: Optional[str] = None
+    experience: Optional[int] = 0
+    skills: List[str] = []
+    accessibility_needs: List[str] = []
 
 class UserInDB(UserBase):
     hashed_password: str
 
 class User(UserBase):
-    pass
+    full_name: Optional[str] = None
+    domain: Optional[str] = None
+    experience: Optional[int] = 0
+    skills: List[str] = []
+    accessibility_needs: List[str] = [] # "blind", "neurodivergent", etc.
 
 class Token(BaseModel):
     access_token: str
@@ -41,15 +49,24 @@ class ExtractedSkills(BaseModel):
     skills: List[str]
     suggested_level: str
 
+class ProfileUpdate(BaseModel):
+    full_name: str
+    domain: str
+    experience: int
+    skills: List[str]
+    accessibility_needs: List[str] = []
+
 # Assessment Generation
 class AssessmentRequest(BaseModel):
     domain: str
     level: str
+    experience: int = 0
+    skills: List[str] = []
 
 class Question(BaseModel):
     id: int
     text: str
-    skill_category: str  # logical_reasoning, problem_solving, etc.
+    skill_category: Union[str, List[str]]  # logical_reasoning, problem_solving, etc.
     question_type: str
     difficulty: str
 

@@ -1,22 +1,56 @@
 'use client';
+import { useState } from 'react';
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
-import { Search, Filter, Briefcase, ChevronDown, Download, Users, Star, BrainCircuit } from "lucide-react";
+import { Search, Filter, Briefcase, ChevronDown, Download, Users, Star, BrainCircuit, Upload, FileText, Check, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function HRDashboard() {
-    const candidates = [
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Mock initial data
+    const [candidates, setCandidates] = useState([
         { id: '2f8a9...b1e', role: 'Full Stack', score: 92, skills: ['React', 'Node.js'], status: 'Recommended', date: '2h ago' },
         { id: '9c3d4...a7f', role: 'Data Scientist', score: 88, skills: ['Python', 'SQL'], status: 'Review', date: '5h ago' },
         { id: 'e1b2c...5d9', role: 'Backend Dev', score: 76, skills: ['Java', 'Spring'], status: 'Passed', date: '1d ago' },
         { id: '4a5b6...8e2', role: 'Frontend Dev', score: 65, skills: ['Vue', 'CSS'], status: 'Borderline', date: '2d ago' },
         { id: '7f8e9...1c3', role: 'DevOps', score: 95, skills: ['AWS', 'Docker'], status: 'Recommended', date: '3d ago' },
-    ];
+    ]);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setUploadedFiles(Array.from(e.target.files));
+        }
+    };
+
+    const processUploads = () => {
+        if (uploadedFiles.length === 0) return;
+
+        setIsProcessing(true);
+        // Simulate processing delay and adding new candidates
+        setTimeout(() => {
+            const newCandidates = uploadedFiles.map((file, i) => ({
+                id: Math.random().toString(36).substring(7),
+                role: file.name.includes('Senior') ? 'Senior Dev' : 'Software Engineer',
+                score: 85 + Math.floor(Math.random() * 10), // Mock score
+                skills: ['Python', 'React', 'System Design'].sort(() => 0.5 - Math.random()).slice(0, 2),
+                status: 'Processing',
+                date: 'Just now'
+            }));
+
+            setCandidates([...newCandidates, ...candidates]);
+            setIsProcessing(false);
+            setUploadedFiles([]);
+            setIsUploadModalOpen(false);
+        }, 2000);
+    };
 
     return (
-        <div className="min-h-screen bg-vibrant-mesh flex flex-col">
+        <div className="min-h-screen bg-vibrant-mesh flex flex-col relative">
 
             {/* Top Navigation */}
             <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200">
@@ -46,8 +80,8 @@ export default function HRDashboard() {
                         <Button variant="outline" className="text-slate-600">
                             <Download className="w-4 h-4 mr-2" /> Export CSV
                         </Button>
-                        <Button>
-                            <Briefcase className="w-4 h-4 mr-2" /> Create Job Post
+                        <Button onClick={() => setIsUploadModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/30">
+                            <Plus className="w-4 h-4 mr-2" /> Bulk Upload Resumes
                         </Button>
                     </div>
                 </div>
@@ -57,7 +91,7 @@ export default function HRDashboard() {
                     <Card className="flex flex-row items-center justify-between p-6 glass-card border-none shadow-lg hover:shadow-xl hover:shadow-indigo-500/10 transition-all">
                         <div>
                             <p className="text-sm font-medium text-slate-500 mb-1">Total Candidates</p>
-                            <p className="text-3xl font-bold text-slate-900">1,248</p>
+                            <p className="text-3xl font-bold text-slate-900">{candidates.length}</p>
                         </div>
                         <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
                             <Users className="w-6 h-6" />
@@ -66,7 +100,7 @@ export default function HRDashboard() {
                     <Card className="flex flex-row items-center justify-between p-6 glass-card border-none shadow-lg hover:shadow-xl hover:shadow-emerald-500/10 transition-all">
                         <div>
                             <p className="text-sm font-medium text-slate-500 mb-1">Top Performers (90%+)</p>
-                            <p className="text-3xl font-bold text-emerald-600">142</p>
+                            <p className="text-3xl font-bold text-emerald-600">{candidates.filter(c => c.score >= 90).length}</p>
                         </div>
                         <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
                             <Star className="w-6 h-6" />
@@ -131,8 +165,8 @@ export default function HRDashboard() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-1.5 flex-wrap">
-                                                    {candidate.skills.map(skill => (
-                                                        <span key={skill} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded border border-slate-200">
+                                                    {candidate.skills.map((skill, i) => (
+                                                        <span key={i} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded border border-slate-200">
                                                             {skill}
                                                         </span>
                                                     ))}
@@ -162,6 +196,59 @@ export default function HRDashboard() {
                     </Card>
                 </div>
             </main>
+
+            {/* Bulk Upload Modal */}
+            {isUploadModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <Card className="w-full max-w-lg p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-slate-900">Bulk Upload Resumes</h2>
+                            <button onClick={() => setIsUploadModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+                        </div>
+
+                        <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors group cursor-pointer relative">
+                            <input
+                                type="file"
+                                multiple
+                                accept=".pdf,.doc,.docx,.txt"
+                                onChange={handleFileUpload}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
+                            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                <Upload className="w-6 h-6" />
+                            </div>
+                            <p className="text-slate-900 font-medium">Click to upload or drag & drop</p>
+                            <p className="text-slate-500 text-sm mt-1">PDF, DOCX, or TXT (Max 10MB)</p>
+                        </div>
+
+                        {uploadedFiles.length > 0 && (
+                            <div className="mt-4 space-y-2 max-h-40 overflow-y-auto">
+                                <p className="text-xs font-semibold text-slate-500 uppercase">Selected Files ({uploadedFiles.length})</p>
+                                {uploadedFiles.map((file, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-2 bg-slate-50 rounded border border-slate-100 text-sm">
+                                        <FileText className="w-4 h-4 text-slate-400" />
+                                        <span className="flex-1 truncate">{file.name}</span>
+                                        <Check className="w-4 h-4 text-emerald-500" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="mt-6 flex gap-3">
+                            <Button variant="outline" className="flex-1" onClick={() => setIsUploadModalOpen(false)}>Cancel</Button>
+                            <Button
+                                variant="gradient"
+                                className="flex-1"
+                                disabled={uploadedFiles.length === 0 || isProcessing}
+                                onClick={processUploads}
+                                isLoading={isProcessing}
+                            >
+                                {isProcessing ? 'Processing AI Analysis...' : 'Process Candidates'}
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }

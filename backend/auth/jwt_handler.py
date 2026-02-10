@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt, JWTError
 
-SECRET_KEY = "hackathon_secret_key_change_me_immediately_in_production"
-ALGORITHM = "HS256"
+from backend.auth.config import SECRET_KEY, ALGORITHM
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours for hackathon convenience
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):

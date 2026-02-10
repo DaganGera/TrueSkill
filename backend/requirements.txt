@@ -12,3 +12,4 @@ python-jose[cryptography]
 python-multipart
 argon2-cffi
 sqlalchemy
+email-validator

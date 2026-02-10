@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 try:
     from .routes import auth, assessment, hr
 except ImportError:
-    from routes import auth, assessment, hr
+    try:
+        from backend.routes import auth, assessment, hr
+    except ImportError:
+        from routes import auth, assessment, hr
 
 app = FastAPI(title="Inclusive Skill Assessment API")
 
@@ -22,7 +25,12 @@ def on_startup():
 # CORS for Frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For hackathon demo, allow all
+    allow_origins=[
+        "http://localhost:3000",
+        "https://trueskilldagangera-7rkgg1pnq-marcben-james-samuel-ss-projects.vercel.app",
+        "https://trueskill-frontend.vercel.app",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

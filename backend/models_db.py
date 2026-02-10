@@ -1,6 +1,9 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, JSON
 from sqlalchemy.orm import relationship
-from .database import Base
+try:
+    from backend.database import Base
+except ImportError:
+    from database import Base
 
 class User(Base):
     __tablename__ = "users"

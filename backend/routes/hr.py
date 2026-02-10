@@ -1,6 +1,10 @@
 from fastapi import APIRouter
-from ..models import ResumeUpload, ExtractedSkills
-from ..ai_service import extract_skills_from_text
+try:
+    from backend.models import ResumeUpload, ExtractedSkills
+    from backend.ai_service import extract_skills_from_text
+except ImportError:
+    from models import ResumeUpload, ExtractedSkills
+    from ai_service import extract_skills_from_text
 
 router = APIRouter()
 

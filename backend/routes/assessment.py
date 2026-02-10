@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from ..models import AssessmentRequest, Assessment as PydanticAssessment, SubmissionRequest
-from ..models_db import Assessment as DBAssessment, Submission as DBSubmission, User as DBUser
-from ..dependencies import get_current_user, get_db
-from ..ai_service import generate_questions, evaluate_submission
+try:
+    from backend.models import AssessmentRequest, Assessment as PydanticAssessment, SubmissionRequest
+    from backend.models_db import Assessment as DBAssessment, Submission as DBSubmission, User as DBUser
+    from backend.dependencies import get_current_user, get_db
+    from backend.ai_service import generate_questions, evaluate_submission
+except ImportError:
+    from models import AssessmentRequest, Assessment as PydanticAssessment, SubmissionRequest
+    from models_db import Assessment as DBAssessment, Submission as DBSubmission, User as DBUser
+    from dependencies import get_current_user, get_db
+    from ai_service import generate_questions, evaluate_submission
 import uuid
 import datetime
 

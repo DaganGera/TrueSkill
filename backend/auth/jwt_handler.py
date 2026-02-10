@@ -2,7 +2,10 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt, JWTError
 
-from backend.auth.config import SECRET_KEY, ALGORITHM
+try:
+    from backend.auth.config import SECRET_KEY, ALGORITHM
+except ImportError:
+    from auth.config import SECRET_KEY, ALGORITHM
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours for hackathon convenience
 

@@ -1,10 +1,23 @@
 import ollama
+import os
 from typing import Optional
-from backend.ollama_config import OLLAMA_MODEL
+try:
+    from backend.ollama_config import OLLAMA_MODEL
+except ImportError:
+    from ollama_config import OLLAMA_MODEL
+
+# Check for remote Ollama host (e.g., ngrok URL)
+OLLAMA_HOST = os.getenv("OLLAMA_HOST")
+
+if OLLAMA_HOST:
+    print(f"Using remote Ollama host: {OLLAMA_HOST}")
+    client = ollama.Client(host=OLLAMA_HOST)
+else:
+    client = ollama
 
 def query_ollama(prompt: str, model: str = OLLAMA_MODEL, format: str = None) -> Optional[str]:
     """
-    Sends a prompt to the local Ollama instance and returns the response.
+    Sends a prompt to the Ollama instance (local or remote) and returns the response.
 
     Args:
         prompt (str): The input text prompt to send to the model from the user.
@@ -20,7 +33,7 @@ def query_ollama(prompt: str, model: str = OLLAMA_MODEL, format: str = None) -> 
     try:
         # strict=True ensures that we get a direct response without streaming.
         # This is more "production-safe" for simple sequential calls where complete output is needed.
-        response = ollama.chat(model=model, format=format, messages=[
+        response = client.chat(model=model, format=format, messages=[
             {
                 'role': 'user',
                 'content': prompt,

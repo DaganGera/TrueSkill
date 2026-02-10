@@ -1,10 +1,17 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from backend.models import UserCreate, User as PydanticUser, Token, LoginRequest, LoginResponse, ProfileUpdate
-from backend.models_db import User as DBUser
-from backend.auth.security import get_password_hash, verify_password
-from backend.auth.jwt_handler import create_access_token
-from backend.dependencies import get_current_active_user, get_db
+try:
+    from backend.models import UserCreate, User as PydanticUser, Token, LoginRequest, LoginResponse, ProfileUpdate
+    from backend.models_db import User as DBUser
+    from backend.auth.security import get_password_hash, verify_password
+    from backend.auth.jwt_handler import create_access_token
+    from backend.dependencies import get_current_active_user, get_db
+except ImportError:
+    from models import UserCreate, User as PydanticUser, Token, LoginRequest, LoginResponse, ProfileUpdate
+    from models_db import User as DBUser
+    from auth.security import get_password_hash, verify_password
+    from auth.jwt_handler import create_access_token
+    from dependencies import get_current_active_user, get_db
 from datetime import timedelta
 
 router = APIRouter()

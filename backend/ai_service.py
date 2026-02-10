@@ -46,10 +46,16 @@ MOCK_QUESTIONS = {
     ]
 }
 
-from backend.ollama_client import query_ollama
+try:
+    from backend.ollama_client import query_ollama
+except ImportError:
+    from ollama_client import query_ollama
 import json
 
-from backend.crew_orchestrator import crew_orchestrator
+try:
+    from backend.crew_orchestrator import crew_orchestrator
+except ImportError:
+    from crew_orchestrator import crew_orchestrator
 import json
 
 def generate_questions(domain: str, level: str, experience: int = 0, user_skills: List[str] = []) -> List[Dict]:

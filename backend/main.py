@@ -7,6 +7,18 @@ except ImportError:
 
 app = FastAPI(title="Inclusive Skill Assessment API")
 
+# Ensure DB tables exist on startup
+@app.on_event("startup")
+def on_startup():
+    try:
+        from .database import engine, Base
+        from . import models_db
+        Base.metadata.create_all(bind=engine)
+    except ImportError:
+        from database import engine, Base
+        import models_db
+        Base.metadata.create_all(bind=engine)
+
 # CORS for Frontend access
 app.add_middleware(
     CORSMiddleware,

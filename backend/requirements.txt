@@ -1,15 +1,14 @@
 fastapi
 uvicorn
 pydantic
+email-validator
 python-multipart
 starlette
-
 ollama
 crewai
 langchain-community
 passlib
 python-jose[cryptography]
-python-multipart
 argon2-cffi
 sqlalchemy
-email-validator
+requests

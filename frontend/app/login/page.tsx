@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
+import { getApiUrl } from '@/utils/api';
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -19,7 +20,8 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
+            const apiUrl = getApiUrl();
+            const res = await fetch(`${apiUrl}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),

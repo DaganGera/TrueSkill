@@ -11,6 +11,7 @@ import { Volume2, ChevronRight, ChevronLeft, Flag, CheckCircle } from "lucide-re
 import { useAuth } from "@/context/AuthContext";
 import { WebcamView } from '@/components/WebcamView';
 import { AlertCircle, Clock, CheckCircle2, Video, Hand } from 'lucide-react';
+import { getApiUrl } from '@/utils/api';
 
 // Simple KNN/Distance types
 type Landmark = { x: number, y: number, z: number };
@@ -83,7 +84,10 @@ export default function Assessment() {
         setIsLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/assessment/generate`, {
+
+
+            const apiUrl = getApiUrl();
+            const res = await fetch(`${apiUrl}/assessment/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,215 +207,218 @@ export default function Assessment() {
         triggerHapticFeedback([200, 100, 200]); // Longer vibration for submit start
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/assessment/submit`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    assessment_id: assessmentId,
-                    answers: answers
-                })
-            });
+            try {
+                const apiUrl = getApiUrl();
+                const res = await fetch(`${apiUrl}/assessment/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        assessment_id: assessmentId,
+                        answers: answers
+                    })
+                });
 
-            if (!res.ok) throw new Error('Failed to submit');
+                if (!res.ok) throw new Error('Failed to submit');
 
-            const result = await res.json();
+                const result = await res.json();
 
-            // Save result to localStorage to display on Report page
-            localStorage.setItem('assessmentResult', JSON.stringify(result));
-            router.push('/report');
+                // Save result to localStorage to display on Report page
+                localStorage.setItem('assessmentResult', JSON.stringify(result));
+                router.push('/report');
 
-        } catch (error) {
-            console.error("Submission failed:", error);
-            alert("Failed to submit assessment. Please try again.");
-            setIsSubmitting(false);
-        }
-    };
+            } catch (error) {
+                console.error("Submission failed:", error);
+                alert("Failed to submit assessment. Please try again.");
+                setIsSubmitting(false);
+            }
+        };
 
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
+        const formatTime = (seconds: number) => {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        };
 
-    if (!user) return <div className="p-10 text-center">Loading User Profile...</div>;
+        if (!user) return <div className="p-10 text-center">Loading User Profile...</div>;
 
-    return (
-        <div className="min-h-screen bg-vibrant-mesh flex flex-col items-center py-10 px-6 relative transition-colors duration-500">
-            <AccessibilityToggle />
+        return (
+            <div className="min-h-screen bg-vibrant-mesh flex flex-col items-center py-10 px-6 relative transition-colors duration-500">
+                <AccessibilityToggle />
 
-            <header className="w-full max-w-6xl mb-8 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 glass-card rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-emerald-500/50 shadow-sm"></span>
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Live Assessment: {user.domain}</span>
-                </div>
-                <Badge variant={timeLeft < 300 ? "error" : "neutral"} className="font-mono text-lg">
-                    {formatTime(timeLeft)}
-                </Badge>
-            </header>
+                <header className="w-full max-w-6xl mb-8 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500 glass-card rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-emerald-500/50 shadow-sm"></span>
+                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Live Assessment: {user.domain}</span>
+                    </div>
+                    <Badge variant={timeLeft < 300 ? "error" : "neutral"} className="font-mono text-lg">
+                        {formatTime(timeLeft)}
+                    </Badge>
+                </header>
 
-            <main className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <main className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
 
-                {/* Main Content Area */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="flex flex-col gap-2">
-                        <div className="flex justify-between text-sm font-medium text-slate-600">
-                            <span>Question {currentStep} of {totalSteps}</span>
-                            <span>{Math.round(progress)}% Completed</span>
+                    {/* Main Content Area */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-between text-sm font-medium text-slate-600">
+                                <span>Question {currentStep} of {totalSteps}</span>
+                                <span>{Math.round(progress)}% Completed</span>
+                            </div>
+                            <ProgressBar value={progress} className="h-2" />
                         </div>
-                        <ProgressBar value={progress} className="h-2" />
+
+                        <Card noPadding className="overflow-hidden shadow-2xl border-indigo-100/50 ring-1 ring-slate-100/50 backdrop-blur-sm bg-white/90">
+                            {isLoading || !currentQuestion ? (
+                                <div className="p-8 space-y-6">
+                                    <Skeleton className="h-8 w-3/4 rounded-md" />
+                                    <Skeleton className="h-4 w-full rounded-md" />
+                                    <Skeleton className="h-32 w-full rounded-md mt-6" />
+                                </div>
+                            ) : (
+                                <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-300">
+                                    {/* Question Header */}
+                                    <div className="p-8 border-b border-slate-100 bg-slate-50/80 flex justify-between items-start">
+                                        <div className="space-y-4 max-w-2xl">
+                                            <Badge variant="default" className="text-xs">{currentQuestion.skill_category}</Badge>
+                                            <h2 className="text-xl font-semibold text-slate-900 leading-snug">
+                                                {currentQuestion.text}
+                                            </h2>
+                                        </div>
+                                        <Button variant="ghost" size="icon" title="Read Aloud" onClick={speakQuestion} className="text-slate-400 hover:text-indigo-600">
+                                            <Volume2 className="w-5 h-5" />
+                                        </Button>
+                                    </div>
+
+                                    {/* Answer Area */}
+                                    <div className="p-8 bg-white/50">
+                                        <textarea
+                                            className="w-full min-h-[240px] p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-base resize-none font-sans leading-relaxed transition-all placeholder:text-slate-300 shadow-inner"
+                                            placeholder="Type your answer here..."
+                                            value={answers[currentStep - 1]?.text || ""}
+                                            onChange={(e) => handleAnswerChange(e.target.value)}
+                                            spellCheck={false}
+                                        />
+                                    </div>
+
+                                    {/* Footer Actions */}
+                                    <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                                            disabled={currentStep === 1 || isSubmitting}
+                                            className="text-slate-500 hover:bg-slate-100"
+                                        >
+                                            <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+                                        </Button>
+
+                                        <div className="flex gap-3">
+                                            <Button variant="outline" className="text-slate-500 hover:text-amber-600 border-slate-200">
+                                                <Flag className="w-4 h-4 mr-2" /> Flag
+                                            </Button>
+
+                                            {currentStep === totalSteps ? (
+                                                <Button
+                                                    onClick={submitAssessment}
+                                                    disabled={isSubmitting}
+                                                    className="px-8 shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white"
+                                                >
+                                                    {isSubmitting ? 'Submitting...' : 'Finish Assessment'}
+                                                    {!isSubmitting && <CheckCircle className="w-4 h-4 ml-2" />}
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
+                                                    className="px-8 shadow-md shadow-indigo-500/20"
+                                                >
+                                                    Next Question <ChevronRight className="w-4 h-4 ml-2" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </Card>
                     </div>
 
-                    <Card noPadding className="overflow-hidden shadow-2xl border-indigo-100/50 ring-1 ring-slate-100/50 backdrop-blur-sm bg-white/90">
-                        {isLoading || !currentQuestion ? (
-                            <div className="p-8 space-y-6">
-                                <Skeleton className="h-8 w-3/4 rounded-md" />
-                                <Skeleton className="h-4 w-full rounded-md" />
-                                <Skeleton className="h-32 w-full rounded-md mt-6" />
+                    {/* Sidebar with Stats & Camera */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <Card className="p-6 border-0 shadow-lg bg-white/80 backdrop-blur-md">
+                            <div className="flex items-center space-x-3 mb-6">
+                                <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                                    <Clock className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-slate-500">Time Remaining</p>
+                                    <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                                        {formatTime(timeLeft)}
+                                    </p>
+                                </div>
                             </div>
-                        ) : (
-                            <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-300">
-                                {/* Question Header */}
-                                <div className="p-8 border-b border-slate-100 bg-slate-50/80 flex justify-between items-start">
-                                    <div className="space-y-4 max-w-2xl">
-                                        <Badge variant="default" className="text-xs">{currentQuestion.skill_category}</Badge>
-                                        <h2 className="text-xl font-semibold text-slate-900 leading-snug">
-                                            {currentQuestion.text}
-                                        </h2>
-                                    </div>
-                                    <Button variant="ghost" size="icon" title="Read Aloud" onClick={speakQuestion} className="text-slate-400 hover:text-indigo-600">
-                                        <Volume2 className="w-5 h-5" />
-                                    </Button>
+                        </Card>
+
+                        {/* ISL Camera Panel */}
+                        <Card className="p-4 border-0 shadow-lg bg-white/80 backdrop-blur-md overflow-hidden">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center space-x-2">
+                                    <Video className="w-5 h-5 text-indigo-600" />
+                                    <h3 className="font-semibold text-slate-800">ISL Control</h3>
                                 </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowCamera(!showCamera)}
+                                >
+                                    {showCamera ? "Hide" : "Show"}
+                                </Button>
+                            </div>
 
-                                {/* Answer Area */}
-                                <div className="p-8 bg-white/50">
-                                    <textarea
-                                        className="w-full min-h-[240px] p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-base resize-none font-sans leading-relaxed transition-all placeholder:text-slate-300 shadow-inner"
-                                        placeholder="Type your answer here..."
-                                        value={answers[currentStep - 1]?.text || ""}
-                                        onChange={(e) => handleAnswerChange(e.target.value)}
-                                        spellCheck={false}
-                                    />
-                                </div>
+                            {showCamera && (
+                                <div className="space-y-4">
+                                    <WebcamView onLandmarksDetected={handleLandmarksDetected} />
 
-                                {/* Footer Actions */}
-                                <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-                                        disabled={currentStep === 1 || isSubmitting}
-                                        className="text-slate-500 hover:bg-slate-100"
-                                    >
-                                        <ChevronLeft className="w-4 h-4 mr-2" /> Previous
-                                    </Button>
-
-                                    <div className="flex gap-3">
-                                        <Button variant="outline" className="text-slate-500 hover:text-amber-600 border-slate-200">
-                                            <Flag className="w-4 h-4 mr-2" /> Flag
-                                        </Button>
-
-                                        {currentStep === totalSteps ? (
+                                    <div className="space-y-2">
+                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Calibration</p>
+                                        <div className="grid grid-cols-2 gap-2">
                                             <Button
-                                                onClick={submitAssessment}
-                                                disabled={isSubmitting}
-                                                className="px-8 shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white"
+                                                size="sm"
+                                                variant={gestureSamples.find(g => g.name === "Next") ? "secondary" : "outline"}
+                                                onClick={() => setCalibrationMode("Next")}
+                                                className="text-xs"
                                             >
-                                                {isSubmitting ? 'Submitting...' : 'Finish Assessment'}
-                                                {!isSubmitting && <CheckCircle className="w-4 h-4 ml-2" />}
+                                                <Hand className="w-3 h-3 mr-1" />
+                                                Record "Next"
                                             </Button>
-                                        ) : (
                                             <Button
-                                                onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
-                                                className="px-8 shadow-md shadow-indigo-500/20"
+                                                size="sm"
+                                                variant={gestureSamples.find(g => g.name === "Submit") ? "secondary" : "outline"}
+                                                onClick={() => setCalibrationMode("Submit")}
+                                                className="text-xs"
                                             >
-                                                Next Question <ChevronRight className="w-4 h-4 ml-2" />
+                                                <Hand className="w-3 h-3 mr-1" />
+                                                Record "Submit"
                                             </Button>
+                                        </div>
+                                        {calibrationMode && (
+                                            <div className="p-2 bg-yellow-50 text-yellow-700 text-xs rounded border border-yellow-200 animate-pulse">
+                                                Make the gesture for <strong>{calibrationMode}</strong> to save it.
+                                            </div>
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                        )}
-                    </Card>
-                </div>
 
-                {/* Sidebar with Stats & Camera */}
-                <div className="lg:col-span-1 space-y-6">
-                    <Card className="p-6 border-0 shadow-lg bg-white/80 backdrop-blur-md">
-                        <div className="flex items-center space-x-3 mb-6">
-                            <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                                <Clock className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-slate-500">Time Remaining</p>
-                                <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
-                                    {formatTime(timeLeft)}
-                                </p>
-                            </div>
-                        </div>
-                    </Card>
-
-                    {/* ISL Camera Panel */}
-                    <Card className="p-4 border-0 shadow-lg bg-white/80 backdrop-blur-md overflow-hidden">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center space-x-2">
-                                <Video className="w-5 h-5 text-indigo-600" />
-                                <h3 className="font-semibold text-slate-800">ISL Control</h3>
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowCamera(!showCamera)}
-                            >
-                                {showCamera ? "Hide" : "Show"}
-                            </Button>
-                        </div>
-
-                        {showCamera && (
-                            <div className="space-y-4">
-                                <WebcamView onLandmarksDetected={handleLandmarksDetected} />
-
-                                <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Calibration</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant={gestureSamples.find(g => g.name === "Next") ? "secondary" : "outline"}
-                                            onClick={() => setCalibrationMode("Next")}
-                                            className="text-xs"
-                                        >
-                                            <Hand className="w-3 h-3 mr-1" />
-                                            Record "Next"
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant={gestureSamples.find(g => g.name === "Submit") ? "secondary" : "outline"}
-                                            onClick={() => setCalibrationMode("Submit")}
-                                            className="text-xs"
-                                        >
-                                            <Hand className="w-3 h-3 mr-1" />
-                                            Record "Submit"
-                                        </Button>
-                                    </div>
-                                    {calibrationMode && (
-                                        <div className="p-2 bg-yellow-50 text-yellow-700 text-xs rounded border border-yellow-200 animate-pulse">
-                                            Make the gesture for <strong>{calibrationMode}</strong> to save it.
+                                    {lastDetectedGesture && (
+                                        <div className="p-3 bg-green-100 text-green-700 text-center rounded-lg font-bold animate-in fade-in slide-in-from-bottom-2">
+                                            Detected: {lastDetectedGesture}
                                         </div>
                                     )}
                                 </div>
-
-                                {lastDetectedGesture && (
-                                    <div className="p-3 bg-green-100 text-green-700 text-center rounded-lg font-bold animate-in fade-in slide-in-from-bottom-2">
-                                        Detected: {lastDetectedGesture}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </Card>
-                </div>
-            </main>
-        </div>
-    );
+                            )}
+                        </Card>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 }

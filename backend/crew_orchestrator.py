@@ -1,6 +1,9 @@
 import json
 from typing import Dict, Any, List
-from .ollama_client import query_ollama
+try:
+    from backend.ollama_client import query_ollama
+except ImportError:
+    from ollama_client import query_ollama
 
 # --- Agent Definitions ---
 

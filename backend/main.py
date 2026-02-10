@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import auth, assessment, hr
+try:
+    from .routes import auth, assessment, hr
+except ImportError:
+    from routes import auth, assessment, hr
 
 app = FastAPI(title="Inclusive Skill Assessment API")
 
